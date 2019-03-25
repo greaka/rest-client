@@ -6,17 +6,18 @@ use quote::quote;
 use syn;
 use syn::{
     parse::{Parse, ParseStream},
-    Ident, LitStr, Token,
+    Attribute, Ident, LitStr, Token,
 };
 
 struct Attr {
-    uri: LitStr,
+    uri: Vec<Attribute>,
     vec: bool,
 }
 
 impl Parse for Attr {
     fn parse(input: ParseStream) -> syn::parse::Result<Self> {
-        let uri: LitStr = input.parse()?;
+        let uri = input.call(Attribute::parse_inner)?;
+        //let uri: LitStr = input.parse()?;
         let mut is_vec = false;
         if let Ok(_) = input.parse::<Token![,]>() {
             if let Ok(vec) = input.parse::<Ident>() {

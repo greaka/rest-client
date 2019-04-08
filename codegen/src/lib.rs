@@ -13,13 +13,16 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
 
     // https://github.com/actix/actix-web/blob/1970c99522ef37d4a5fbed404b9b100912fad69a/actix-web-codegen/src/lib.rs#L18
-    let _path = match args[0] {
+    let path = match args[0] {
         syn::NestedMeta::Literal(syn::Lit::Str(ref fname)) => {
             let fname = quote!(#fname).to_string();
             fname.as_str()[1..fname.len() - 1].to_owned()
         }
         _ => panic!("resource path"),
     };
+
+    let count = path.matches("{}").count();
+    let count_iter = 0..count;
 
     let mut is_vec = false;
     for arg in args[1..].iter() {
@@ -37,16 +40,28 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(item_copy as syn::ItemStruct);
     let item: proc_macro2::TokenStream = item.into();
     let ident = &input.ident;
-    let result = quote! {
-        #item
 
-        impl ClientMethods for #ident {
+    let result = if !is_vec {
+        quote! {
+            impl ClientMethods for #ident {
+                fn get(parameters: Args) -> std::future::Future<Output = Self> {
+                    let request_path = format!(#path, #(parameters.#count_iter),*);
+                }
+            }
+        }
+    } else {
+        quote! {
+            impl ClientVecMethods for #ident {
+                fn get(parameters: Args) -> std::future::Future<Output = Vec<Box<Self>>> {
+                    let request_path = format!(#path, #(parameters.#count_iter),*);
+                }
+            }
         }
     };
-    result.into()
-}
 
-trait ClientMethods {
-    type Output;
-    fn get(parameters: Vec<&str>) -> std::future::Future;
+    (quote! {
+        #item
+        #result
+    })
+    .into()
 }

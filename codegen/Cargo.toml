@@ -3,6 +3,7 @@ name = "rest-client_codegen"
 version = "0.1.0"
 authors = ["Michl Steglich <mrgreaka@gmail.com>"]
 edition = "2018"
+workspace = "../"
 
 [lib]
 proc-macro = true

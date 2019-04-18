@@ -5,15 +5,24 @@ extern crate rest_client_codegen;
 pub use rest_client_codegen::rest;
 
 pub trait ClientMethods {
-    fn get(parameters: Args) -> std::future::Future<Output = Self>;
+    fn get(parameters: Args) -> Result<Box<Self>, Box<std::error::Error>>;
 }
 
 pub trait ClientVecMethods {
-    fn get(parameters: Args) -> std::future::Future<Output = Vec<Box<Self>>>;
+    fn gets(parameters: Args) -> Result<Vec<Box<Self>>, Box<std::error::Error>>;
 }
 
+#[derive(Debug)]
+pub struct ParameterError;
+impl std::fmt::Display for ParameterError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Wrong Parameter")
+    }
+}
+impl std::error::Error for ParameterError {}
+
 pub enum Args {
-    OneArg(String),
+    OneArg((String,)),
     TwoArgs((String, String)),
     ThreeArgs((String, String, String)),
     FourArgs((String, String, String, String)),
@@ -75,7 +84,7 @@ where
     T: std::fmt::Display + std::marker::Sized,
 {
     fn from(arg: (T,)) -> Args {
-        Args::OneArg(format!("{}", arg.0))
+        Args::OneArg((format!("{}", arg.0),))
     }
 }
 

@@ -1,3 +1,4 @@
+
 extern crate proc_macro;
 extern crate proc_macro2;
 
@@ -7,6 +8,19 @@ use syn;
 
 #[proc_macro_attribute]
 pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let arg_vec = vec!["",
+        "OneArg",
+        "TwoArgs",
+        "ThreeArgs",
+        "FourArgs",
+        "FiveArgs",
+        "SixArgs",
+        "SevenArgs",
+        "EightArgs",
+        "NineArgs",
+        "TenArgs",
+    ];
+
     let args = syn::parse_macro_input!(attr as syn::AttributeArgs);
     if args.is_empty() {
         panic!("invalid number of arguments");
@@ -22,7 +36,12 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let count = path.matches("{}").count();
-    let count_iter = 0..count;
+    let mut counter_vec = Vec::new();
+    for i in 0..count {
+        counter_vec.push(proc_macro2::Literal::usize_unsuffixed(i));
+    }
+    let arg_val = &syn::Ident::new(arg_vec[count], proc_macro2::Span::call_site());
+    let arg_type = quote! { Args::#arg_val };
 
     let mut is_vec = false;
     for arg in args[1..].iter() {
@@ -41,20 +60,30 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
     let item: proc_macro2::TokenStream = item.into();
     let ident = &input.ident;
 
-    let result = if !is_vec {
-        quote! {
-            impl ClientMethods for #ident {
-                fn get(parameters: Args) -> std::future::Future<Output = Self> {
-                    let request_path = format!(#path, #(parameters.#count_iter),*);
-                }
-            }
-        }
+    let (result_type, final_trait, function_name) = if is_vec {
+        (
+            quote! { Vec<Box<Self>> },
+            quote! { ClientVecMethods },
+            quote! { gets },
+        )
     } else {
-        quote! {
-            impl ClientVecMethods for #ident {
-                fn get(parameters: Args) -> std::future::Future<Output = Vec<Box<Self>>> {
-                    let request_path = format!(#path, #(parameters.#count_iter),*);
+        (
+            quote! { Box<Self> },
+            quote! { ClientMethods },
+            quote! { get },
+        )
+    };
+
+    let result = quote! {
+        impl #final_trait for #ident {
+            fn #function_name(parameters: Args) -> Result<#result_type, Box<std::error::Error>> {
+                if let #arg_type(parameter_tuple) = parameters {
+                    let request_path = format!(#path, #(parameter_tuple.#counter_vec),*);
+                    let new_self: #result_type = reqwest::get(&request_path)?
+                        .json()?;
+                    return Ok(new_self)
                 }
+                Err(Box::new(ParameterError))
             }
         }
     };

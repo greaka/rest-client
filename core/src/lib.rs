@@ -1,6 +1,3 @@
-#![feature(futures_api)]
-#![feature(associated_type_defaults)]
-
 extern crate rest_client_codegen;
 pub use rest_client_codegen::rest;
 

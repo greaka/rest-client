@@ -1,9 +1,7 @@
 #[cfg(test)]
 mod tests {
-
     extern crate reqwest;
     extern crate rest_client;
-    extern crate serde_json;
     use rest_client::*;
     use serde::Deserialize;
 

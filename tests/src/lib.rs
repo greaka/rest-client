@@ -56,49 +56,49 @@ mod tests {
             body: "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium".to_owned()
         });
 
-        let comment = Comment::get((1.to_string(),).into()).unwrap();
+        let comment = Comment::get(vec![1]).unwrap();
         assert_eq!(comment, check);
     }
 
     #[test]
     fn get_multiple_comments() {
         /*[
-  {
-    "postId": 1,
-    "id": 1,
-    "name": "id labore ex et quam laborum",
-    "email": "Eliseo@gardner.biz",
-    "body": "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium"
-  },
-  {
-    "postId": 1,
-    "id": 2,
-    "name": "quo vero reiciendis velit similique earum",
-    "email": "Jayne_Kuhic@sydney.com",
-    "body": "est natus enim nihil est dolore omnis voluptatem numquam\net omnis occaecati quod ullam at\nvoluptatem error expedita pariatur\nnihil sint nostrum voluptatem reiciendis et"
-  },
-  {
-    "postId": 1,
-    "id": 3,
-    "name": "odio adipisci rerum aut animi",
-    "email": "Nikita@garfield.biz",
-    "body": "quia molestiae reprehenderit quasi aspernatur\naut expedita occaecati aliquam eveniet laudantium\nomnis quibusdam delectus saepe quia accusamus maiores nam est\ncum et ducimus et vero voluptates excepturi deleniti ratione"
-  },
-  {
-    "postId": 1,
-    "id": 4,
-    "name": "alias odio sit",
-    "email": "Lew@alysha.tv",
-    "body": "non et atque\noccaecati deserunt quas accusantium unde odit nobis qui voluptatem\nquia voluptas consequuntur itaque dolor\net qui rerum deleniti ut occaecati"
-  },
-  {
-    "postId": 1,
-    "id": 5,
-    "name": "vero eaque aliquid doloribus et culpa",
-    "email": "Hayden@althea.biz",
-    "body": "harum non quasi et ratione\ntempore iure ex voluptates in ratione\nharum architecto fugit inventore cupiditate\nvoluptates magni quo et"
-  }
-]*/
+          {
+            "postId": 1,
+            "id": 1,
+            "name": "id labore ex et quam laborum",
+            "email": "Eliseo@gardner.biz",
+            "body": "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium"
+          },
+          {
+            "postId": 1,
+            "id": 2,
+            "name": "quo vero reiciendis velit similique earum",
+            "email": "Jayne_Kuhic@sydney.com",
+            "body": "est natus enim nihil est dolore omnis voluptatem numquam\net omnis occaecati quod ullam at\nvoluptatem error expedita pariatur\nnihil sint nostrum voluptatem reiciendis et"
+          },
+          {
+            "postId": 1,
+            "id": 3,
+            "name": "odio adipisci rerum aut animi",
+            "email": "Nikita@garfield.biz",
+            "body": "quia molestiae reprehenderit quasi aspernatur\naut expedita occaecati aliquam eveniet laudantium\nomnis quibusdam delectus saepe quia accusamus maiores nam est\ncum et ducimus et vero voluptates excepturi deleniti ratione"
+          },
+          {
+            "postId": 1,
+            "id": 4,
+            "name": "alias odio sit",
+            "email": "Lew@alysha.tv",
+            "body": "non et atque\noccaecati deserunt quas accusantium unde odit nobis qui voluptatem\nquia voluptas consequuntur itaque dolor\net qui rerum deleniti ut occaecati"
+          },
+          {
+            "postId": 1,
+            "id": 5,
+            "name": "vero eaque aliquid doloribus et culpa",
+            "email": "Hayden@althea.biz",
+            "body": "harum non quasi et ratione\ntempore iure ex voluptates in ratione\nharum architecto fugit inventore cupiditate\nvoluptates magni quo et"
+          }
+        ]*/
         let check1 = Box::new(Comment {
             post_id: 1,
             id: 1,
@@ -136,7 +136,24 @@ mod tests {
         });
         let check = vec![check1, check2, check3, check4, check5];
 
-        let comment = Comment::gets((1.to_string(),).into()).unwrap();
+        let comment = Comment::gets(vec![1]).unwrap();
         assert_eq!(comment, check);
+    }
+
+    #[rest("not an url but it has {} multiple spots {} to fill")]
+    #[derive(Deserialize)]
+    struct Useless {}
+
+    #[allow(unused_must_use)]
+    #[test]
+    fn try_multiple_params() {
+        Useless::get(vec!["test1", "test2"]);
+    }
+
+    #[should_panic]
+    #[allow(unused_must_use)]
+    #[test]
+    fn try_wrong_param_count() {
+        Useless::get(vec!["test1"]);
     }
 }

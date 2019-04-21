@@ -8,19 +8,6 @@ use syn;
 
 #[proc_macro_attribute]
 pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
-    let arg_vec = vec!["",
-        "OneArg",
-        "TwoArgs",
-        "ThreeArgs",
-        "FourArgs",
-        "FiveArgs",
-        "SixArgs",
-        "SevenArgs",
-        "EightArgs",
-        "NineArgs",
-        "TenArgs",
-    ];
-
     let args = syn::parse_macro_input!(attr as syn::AttributeArgs);
     if args.is_empty() {
         panic!("invalid number of arguments");
@@ -40,8 +27,6 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
     for i in 0..count {
         counter_vec.push(proc_macro2::Literal::usize_unsuffixed(i));
     }
-    let arg_val = &syn::Ident::new(arg_vec[count], proc_macro2::Span::call_site());
-    let arg_type = quote! { Args::#arg_val };
 
     let mut is_vec = false;
     for arg in args[1..].iter() {
@@ -76,14 +61,11 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let result = quote! {
         impl #final_trait for #ident {
-            fn #function_name(parameters: Args) -> Result<#result_type, Box<std::error::Error>> {
-                if let #arg_type(parameter_tuple) = parameters {
-                    let request_path = format!(#path, #(parameter_tuple.#counter_vec),*);
-                    let new_self: #result_type = reqwest::get(&request_path)?
-                        .json()?;
-                    return Ok(new_self)
-                }
-                Err(Box::new(ParameterError))
+            fn #function_name(parameters: Vec<impl std::fmt::Display>) -> Result<#result_type, Box<std::error::Error>> {
+                let request_path = format!(#path, #(parameters[#counter_vec]),*);
+                let new_self: #result_type = reqwest::get(&request_path)?
+                    .json()?;
+                Ok(new_self)
             }
         }
     };

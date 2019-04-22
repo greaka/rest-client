@@ -12,7 +12,7 @@ reqwest = "0.9"
 
 ## Usage
 
-```rs
+```rust
 extern crate reqwest;
 extern crate rest_client;
 use rest_client::*;

@@ -8,6 +8,12 @@ In your Cargo.toml:
 [dependencies]
 "rest-client" = "0.1"
 reqwest = "0.9"
+
+[dependencies.serde]
+version = "1.0"
+features = [
+    "derive"
+]
 ```
 
 ## Usage

@@ -30,3 +30,24 @@ fn main() {
     let bar = Foo::gets(vec![42]).unwrap(); // Vec<Box<Foo>>
 }
 ```
+
+## License
+
+This project is licensed under either of
+
+* [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+  ([LICENSE-APACHE](LICENSE-APACHE))
+
+* [MIT License](http://opensource.org/licenses/MIT)
+  ([LICENSE-MIT](LICENSE-MIT))
+
+at your option.
+
+## Contributing
+
+I am happy about every contribution to this project.
+
+Contributions in any form (issues, pull requests, etc.) to this project
+must adhere to Rust's [Code of Conduct].
+
+[Code of Conduct]: https://www.rust-lang.org/en-US/conduct.html

@@ -24,8 +24,8 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let count = path.matches("{}").count();
     let mut counter_vec = Vec::new();
-    for i in 0..count {
-        counter_vec.push(proc_macro2::Literal::usize_unsuffixed(i));
+    for _i in 0..count {
+        counter_vec.push(quote! { iter.next().unwrap() });
     }
 
     let mut is_vec = false;
@@ -61,8 +61,9 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let result = quote! {
         impl #final_trait for #ident {
-            fn #function_name(parameters: Vec<impl std::fmt::Display>) -> Result<#result_type, Box<std::error::Error>> {
-                let request_path = format!(#path, #(parameters[#counter_vec]),*);
+            fn #function_name(parameters: impl IntoIterator<Item = impl std::fmt::Display>) -> Result<#result_type, Box<std::error::Error>> {
+                let mut iter = parameters.into_iter();
+                let request_path = format!(#path, #(#counter_vec),*);
                 let new_self: #result_type = reqwest::get(&request_path)?
                     .json()?;
                 Ok(new_self)

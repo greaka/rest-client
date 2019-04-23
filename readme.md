@@ -8,6 +8,12 @@ In your Cargo.toml:
 [dependencies]
 "rest-client" = "0.1"
 reqwest = "0.9"
+
+[dependencies.serde]
+version = "1.0"
+features = [
+    "derive"
+]
 ```
 
 ## Usage
@@ -18,8 +24,8 @@ extern crate rest_client;
 use rest_client::*;
 use serde::Deserialize;
 
-[rest("https://example.com/rest-api/{}/multiple?variables={}")]
-[rest("https://example.com/{}", vec)] // if it returns multiple elements
+#[rest("https://example.com/rest-api/{}/multiple?variables={}")]
+#[rest("https://example.com/{}", vec)] // if it returns multiple elements
 #[derive(Deserialize)]
 struct Foo {
     hello: String

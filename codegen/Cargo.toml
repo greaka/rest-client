@@ -1,6 +1,6 @@
 [package]
 name = "rest-client_codegen"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Michl Steglich <mrgreaka@gmail.com>"]
 edition = "2018"
 workspace = "../"

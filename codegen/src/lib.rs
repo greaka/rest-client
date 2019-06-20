@@ -21,19 +21,24 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
         _ => panic!("resource path"),
     };
 
-    let count = path.matches("{}").count();
-    let mut counter_vec = Vec::new();
-    for _i in 0..count {
-        counter_vec.push(quote! { iter.next().unwrap() });
-    }
-
     let mut is_vec = false;
+    let mut wrapper: Option<syn::Ident> = None;
     for arg in args[1..].iter() {
         match arg {
             syn::NestedMeta::Meta(syn::Meta::Word(ref fname))
                 if fname == &syn::Ident::new("vec", proc_macro2::Span::call_site()) =>
             {
                 is_vec = true;
+            }
+            syn::NestedMeta::Meta(syn::Meta::NameValue(ref value))
+                if value.ident == syn::Ident::new("wrapper", proc_macro2::Span::call_site()) =>
+            {
+                let lit = if let syn::Lit::Str(name) = &value.lit {
+                    name
+                } else {
+                    panic!("wrapper has not the format wrapper = \"Type\"");
+                };
+                wrapper = Some(syn::Ident::new(&lit.value(), lit.span()));
             }
             _ => {}
         }
@@ -44,23 +49,27 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
     let item: proc_macro2::TokenStream = item.into();
     let ident = &input.ident;
 
-    let (result_type, final_trait, function_name) = if is_vec {
-        (
-            quote! { Vec<Box<Self>> },
-            quote! { ClientVecMethods },
-            quote! { gets },
-        )
+    let mut result_type = if is_vec {
+        quote! { Vec<Box<Self>> }
     } else {
-        (
-            quote! { Box<Self> },
-            quote! { ClientMethods },
-            quote! { get },
-        )
+        quote! { Box<Self> }
     };
+
+    if let Some(wrapper) = wrapper {
+        result_type = quote! { #wrapper<#result_type> };
+    };
+
+    let final_trait = quote! { ClientMethods<#result_type> };
+
+    let count = path.matches("{}").count();
+    let mut counter_vec = Vec::new();
+    for _i in 0..count {
+        counter_vec.push(quote! { iter.next().unwrap() });
+    }
 
     let result = quote! {
         impl #final_trait for #ident {
-            fn #function_name(parameters: impl IntoIterator<Item = impl std::fmt::Display>) -> Result<#result_type, Box<std::error::Error>> {
+            fn get(parameters: impl IntoIterator<Item = impl std::fmt::Display>) -> Result<#result_type, Box<std::error::Error>> {
                 let mut iter = parameters.into_iter();
                 let request_path = format!(#path, #(#counter_vec),*);
                 let new_self: #result_type = reqwest::get(&request_path)?

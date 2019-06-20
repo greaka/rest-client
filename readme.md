@@ -25,15 +25,35 @@ use rest_client::*;
 use serde::Deserialize;
 
 #[rest("https://example.com/rest-api/{}/multiple?variables={}")]
-#[rest("https://example.com/{}", vec)] // if it returns multiple elements
+#[rest("https://example.com/{}", vec)] // if it returns a json array
 #[derive(Deserialize)]
 struct Foo {
-    hello: String
+    hello: String,
 }
 
 fn main() {
-    let foo = Foo::get(vec!["my", "arguments"]).unwrap(); // Box<Foo>
-    let bar = Foo::gets(vec![42]).unwrap(); // Vec<Box<Foo>>
+    let foo: Box<Foo> = Foo::get(vec!["my", "arguments"]).unwrap();
+    let bar: Vec<Box<Foo>> = Foo::get(vec![42]).unwrap();
+}
+```
+
+```rust
+#[derive(Deserialize)]
+struct ErrorHandler {
+    err: String,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum Wrapper<T> {
+    Success(T),
+    Errored(ErrorHandler),
+}
+
+#[rest("https://example.com/rest-api/{}", wrapper = Wrapper)]
+#[derive(Deserialize)]
+struct Foo {
+    hello: String,
 }
 ```
 

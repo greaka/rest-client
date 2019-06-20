@@ -56,7 +56,7 @@ mod tests {
             body: "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium".to_owned()
         });
 
-        let comment = Comment::get(vec![1]).unwrap();
+        let comment: Box<Comment> = Comment::get(vec![1]).unwrap();
         assert_eq!(comment, check);
     }
 
@@ -136,7 +136,7 @@ mod tests {
         });
         let check = vec![check1, check2, check3, check4, check5];
 
-        let comment = Comment::gets(vec![1]).unwrap();
+        let comment: Vec<Box<Comment>> = Comment::get(vec![1]).unwrap();
         assert_eq!(comment, check);
     }
 

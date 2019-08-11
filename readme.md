@@ -32,8 +32,8 @@ struct Foo {
 }
 
 fn main() {
-    let foo: Box<Foo> = Foo::get(vec!["my", "arguments"]).unwrap();
-    let bar: Vec<Box<Foo>> = Foo::get(vec![42]).unwrap();
+    let foo: Box<Foo> = Foo::get(&["my", "arguments"]).unwrap();
+    let bar: Vec<Box<Foo>> = Foo::get(&[42]).unwrap();
 }
 ```
 

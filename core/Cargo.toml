@@ -1,6 +1,6 @@
 [package]
 name = "rest-client"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Michl Steglich <mrgreaka@gmail.com>"]
 edition = "2018"
 workspace = "../"
@@ -9,4 +9,4 @@ repository = "https://github.com/greaka/rest-client"
 description = "a simple rest client based on reqwest"
 
 [dependencies]
-"rest-client_codegen" = { version = "0.2", path = "../codegen" }
+"rest-client_codegen" = { version = "0.3", path = "../codegen" }

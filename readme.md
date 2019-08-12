@@ -32,8 +32,8 @@ struct Foo {
 }
 
 fn main() {
-    let foo: Box<Foo> = Foo::get(&["my", "arguments"]).unwrap();
-    let bar: Vec<Box<Foo>> = Foo::get(&[42]).unwrap();
+    let foo: Foo = Foo::get(&["my", "arguments"]).unwrap();
+    let bar: Vec<Foo> = Foo::get(&[42]).unwrap();
 }
 ```
 
@@ -54,6 +54,10 @@ enum Wrapper<T> {
 #[derive(Deserialize)]
 struct Foo {
     hello: String,
+}
+
+fn main() {
+    let foo: Wrapper<Foo> = Foo::get(&["argument"]).unwrap();
 }
 ```
 

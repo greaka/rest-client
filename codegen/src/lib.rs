@@ -50,9 +50,9 @@ pub fn rest(attr: TokenStream, item: TokenStream) -> TokenStream {
     let ident = &input.ident;
 
     let mut result_type = if is_vec {
-        quote! { Vec<Box<Self>> }
+        quote! { Vec<Self> }
     } else {
-        quote! { Box<Self> }
+        quote! { Self }
     };
 
     if let Some(wrapper) = wrapper {

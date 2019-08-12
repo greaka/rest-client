@@ -6,7 +6,7 @@ In your Cargo.toml:
 
 ```toml
 [dependencies]
-"rest-client" = "0.1"
+"rest-client" = "0.3"
 reqwest = "0.9"
 
 [dependencies.serde]
